@@ -1,21 +1,23 @@
 # Functional Requirements (FR)
 
-## FR-001 PDF Upload & Validation
+## FR-001 PDF Upload and Validation
 Priority: MUST
 Status: PLANNED
 Acceptance:
-- Accept PDF up to 10MB
-- Validate file type
-- Clear user-friendly error messages
+- accept PDF up to 10MB
+- validate file type
+- show clear, user-friendly errors
 
-## FR-002 Multi-Strategy Text Extraction
+## FR-002 Text Extraction (Phase 1)
 Priority: MUST
-Status: PLANNED
+Status: IN PROGRESS
 Depends on: FR-001
 Acceptance:
-- pdfplumber primary
-- OCR fallback when extracted words < 50
-- extraction metadata: method, page_count, quality
+- use pdfplumber as primary extractor
+- deterministic behavior for the same input
+- extraction metadata: method, page_count, word_count, quality
+- graceful failure handling (no crash, empty text + error)
+- OCR fallback is explicitly out of scope for Phase 1
 
 ## FR-003 CV Structure Analysis
 Priority: MUST
@@ -25,10 +27,10 @@ Acceptance:
 - support DE/EN headers
 - graceful degradation
 
-## FR-004 Skill Extraction & Categorization
+## FR-004 Skill Extraction and Categorization
 Priority: MUST
 Status: PLANNED
 Acceptance:
 - skill DB support
-- synonyms (e.g., JS → JavaScript)
+- synonyms (e.g., JS -> JavaScript)
 - categories: technical, soft, languages, certifications

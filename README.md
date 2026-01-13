@@ -1,99 +1,54 @@
-# ATS CV Scoring System  
-Engineering Case Study – Consumer Usability & Data Science
+# ATS CV Scorer (Engineering Case Study)
 
-## 🇩🇪 Projektüberblick (Deutsch)
+## Project Overview (EN)
+This repository documents an end-to-end engineering case study for an ATS-style
+CV scoring system. The goal is not a commercial product, but a transparent,
+portfolio-ready project with clear requirements, traceability, and tests.
 
-Dieses Repository dokumentiert die Entwicklung eines **ATS CV Scoring Systems**
-als **Engineering Case Study** mit Fokus auf:
+Objectives:
+- demonstrate requirements engineering and traceability
+- build a reproducible NLP pipeline on real-world CVs
+- deliver explainable scoring and user-facing insights
+- keep privacy and data handling explicit
 
-- Requirements Engineering
-- Data Science & NLP
-- Software Architecture
-- Consumer Usability
-- Open Source Engineering Practices
+Scope (MVP):
+- PDF upload and validation
+- deterministic text extraction (FR-002 Phase 1)
+- structure and skill analysis (planned)
+- Streamlit UI
 
-Ziel ist **nicht** ein Produkt, sondern ein **nachvollziehbar dokumentiertes
-End-to-End-Engineering-Projekt** für Portfolio- und Bewerbungszwecke.
+Non-goals:
+- no persistent storage of CVs
+- no opaque, unexplainable scoring
+- no production-grade ATS replacement
 
----
+Privacy:
+- all processing is session-based
+- temporary files are deleted after processing
 
-## 🇬🇧 Project Overview (English)
+## Projektueberblick (DE)
+Dieses Repository dokumentiert eine Engineering Case Study fuer ein
+ATS-aehnliches CV-Scoring-System. Ziel ist kein Produkt, sondern ein
+transparentes, portfolio-faehiges Projekt mit klaren Anforderungen,
+Traceability und Tests.
 
-This repository documents the development of an **ATS CV Scoring System**
-as an **engineering case study**, focusing on:
+Ziele:
+- Requirements Engineering und Traceability sichtbar machen
+- reproduzierbare NLP-Pipeline auf CVs
+- erklaerbare Scoring-Ergebnisse
+- klare Privacy-Grenzen
 
-- Requirements Engineering
-- Data Science & NLP
-- Software Architecture
-- Consumer Usability
-- Open Source engineering practices
+Scope (MVP):
+- PDF-Upload und Validierung
+- deterministische Textextraktion (FR-002 Phase 1)
+- Struktur- und Skill-Analyse (geplant)
+- Streamlit UI
 
-The goal is **not** to build a commercial product, but a **transparent,
-well-documented end-to-end engineering project** for portfolio and career use.
+Nicht-Ziele:
+- keine persistente Speicherung von CVs
+- kein intransparenter Black-Box-Score
+- kein produktionsreifer ATS-Ersatz
 
----
-
-## 🎯 Engineering Objectives
-
-- Demonstrate structured **requirements engineering**
-- Design a reproducible **data science pipeline**
-- Apply **NLP techniques** to real-world documents (CVs)
-- Translate technical results into **user-facing insights**
-- Follow **professional repository and documentation standards**
-
----
-
-## 🧩 Scope (MVP)
-
-- PDF CV upload and text extraction
-- NLP-based structure & skill analysis
-- ATS-style scoring (0–100)
-- Explainable recommendations
-- Streamlit-based user interface
-
----
-
-## ⚠️ Non-Goals
-
-- No commercial ATS replacement
-- No storage of personal data
-- No opaque black-box scoring
-
----
-
-## 🛠 Tech Stack
-
-- Python 3.10+
-- spaCy, sentence-transformers
-- scikit-learn, pandas, numpy
-- Streamlit
-- Docker (later phase)
-
----
-
-## 📐 Architecture (High-Level)
-
-PDF → Text Extraction → NLP Analysis → Feature Engineering → Scoring → UI
-
----
-
-## 📄 Documentation
-
-- `docs/` – Requirements, architecture, decisions
-- `src/` – Core implementation
-- `tests/` – Automated tests
-- `frontend/` – Streamlit application
-
----
-
-## 🔐 Privacy & Ethics
-
-All processing is session-based.
-No CV data is stored permanently.
-
----
-
-## 🚧 Project Status
-
-**Phase:** Setup & Requirements Engineering  
-**Next Step:** Core pipeline implementation
+Datenschutz:
+- Verarbeitung nur innerhalb der Session
+- temporaere Dateien werden geloescht
