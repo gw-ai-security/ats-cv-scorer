@@ -6,6 +6,7 @@ import tempfile
 import streamlit as st
 
 from src.core.pdf_processor import PDFProcessor
+from src.utils.validation import validate_upload
 
 
 st.set_page_config(page_title="ATS CV Scorer", layout="centered")
@@ -14,6 +15,11 @@ st.title("ATS CV Scorer - FR-002 Extraction Demo")
 uploader = st.file_uploader("Upload a PDF CV", type=["pdf"])
 
 if uploader is not None:
+    validation = validate_upload(uploader)
+    if not validation.ok:
+        st.error(validation.error or "Upload validation failed.")
+        st.stop()
+
     processor = PDFProcessor()
     temp_path = None
 
