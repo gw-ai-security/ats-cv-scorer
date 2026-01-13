@@ -2,7 +2,7 @@
 
 ## FR-001 PDF Upload and Validation
 Priority: MUST
-Status: PLANNED
+Status: DONE
 Acceptance:
 - accept PDF up to 10MB
 - validate file type

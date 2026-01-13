@@ -2,7 +2,7 @@
 
 ## FR-001 PDF-Upload und Validierung
 Prioritaet: MUST
-Status: GEPLANT
+Status: UMGESETZT
 Akzeptanz:
 - PDF bis 10MB
 - Dateityp validieren
