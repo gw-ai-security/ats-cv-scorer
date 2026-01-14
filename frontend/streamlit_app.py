@@ -12,7 +12,12 @@ from src.utils.validation import validate_upload
 st.set_page_config(page_title="ATS CV Scorer", layout="centered")
 st.title("ATS CV Scorer - FR-002 Extraction Demo")
 
-uploader = st.file_uploader("Upload a PDF CV", type=["pdf"])
+uploader = st.file_uploader(
+    "Upload a PDF CV",
+    type=["pdf"],
+    help="Max file size: 10 MB"
+)
+
 
 if uploader is not None:
     validation = validate_upload(uploader)
