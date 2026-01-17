@@ -11,15 +11,22 @@
 - ADR-001 fuer Streamlit MVP festgelegt
 - Quality Gates und Evaluation Plan dokumentiert
 - Basisstruktur im Repo (frontend/src/tests/docs)
+- FR-002 Textextraktion (deterministisch) umgesetzt
+- FR-003 CV-Strukturanalyse umgesetzt
+- Tests fuer Extraktion und Strukturanalyse vorhanden
+- FR-004 Skill-Extraktion und Kategorisierung umgesetzt
+- Tests fuer Skill-Extraktion vorhanden
+- FR-005 ATS-Recruiter-Kriterien aus CV extrahiert
+- FR-006 JD Parsing umgesetzt (DE/EN)
+- FR-007 Baseline Matching mit Explainability umgesetzt
+- Tests fuer ATS-Extraktion, JD Parsing und Matching vorhanden
 
 ## In Arbeit
-- deterministische PDF-Textextraktion (FR-002 Phase 1)
 - Streamlit UI fuer Upload/Preview
-- Tests fuer Extraktion und Validierung
 
 ## Naechste Schritte
-- Struktur- und Skill-Analyse (geplant)
-- Explainable Scoring Modellieren
+- Explainable Scoring modellieren
+- ML-Matching Roadmap evaluieren
 - Traceability zu neuen Anforderungen erweitern
 
 ## Risiken / Blocker
