@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "skills": {
+    "technical": [
+      "python",
+      "javascript",
+      "sql",
+      "streamlit",
+      "pandas",
+      "numpy"
+    ],
+    "soft": [
+      "communication",
+      "leadership",
+      "teamwork"
+    ],
+    "languages": [
+      "english",
+      "german"
+    ],
+    "certifications": [
+      "aws certified solutions architect"
+    ]
+  },
+  "synonyms": {
+    "py": "python",
+    "js": "javascript",
+    "aws sa": "aws certified solutions architect",
+    "aws solutions architect": "aws certified solutions architect",
+    "deutsch": "german",
+    "englisch": "english"
+  },
+  "job_families": {
+    "backend": {
+      "required": [
+        "python",
+        "sql",
+        "javascript"
+      ],
+      "preferred": [
+        "communication",
+        "aws certified solutions architect"
+      ]
+    },
+    "data": {
+      "required": [
+        "python",
+        "sql",
+        "pandas"
+      ],
+      "preferred": [
+        "numpy",
+        "communication"
+      ]
+    },
+    "security": {
+      "required": [
+        "python",
+        "sql"
+      ],
+      "preferred": [
+        "leadership",
+        "communication"
+      ]
+    }
+  }
+}

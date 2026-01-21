@@ -1,0 +1,15 @@
+Backend Engineer
+Remote: yes
+
+Aufgaben:
+- Build reliable services.
+- Collaborate with cross-functional teams.
+
+Anforderungen:
+*   python
+-  sql
+*   javascript
+
+Wuensche:
+*   communication
+-  aws certified solutions architect

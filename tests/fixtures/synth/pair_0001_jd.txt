@@ -1,0 +1,15 @@
+Backend Engineer
+Remote: yes
+
+Responsibilities:
+- Build reliable services.
+- Collaborate with cross-functional teams.
+
+Required:
+*   python
+-  sql
+*   pandas
+
+Preferred:
+*   numpy
+-  communication

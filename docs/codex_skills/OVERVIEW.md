@@ -19,6 +19,9 @@
 | project-orchestration | Skill-Orchestrierung | Bei Phasenwechsel oder Laufplanung | `.codex/skills/project-orchestration/SKILL.md` |
 | knowledge-base | Knowledge Base pflegen (DE/EN) | Nach Snapshot oder Doku-Aenderungen | `.codex/skills/knowledge-base/SKILL.md` |
 | master-orchestration | Master-Orchestrierung | Vor Arbeitslaeufen/Phasenwechsel | `.codex/skills/master-orchestration/SKILL.md` |
+| data-sourcing-and-licensing | Datenquellen evaluieren und Lizenz-Checklists dokumentieren | Vor Nutzung neuer externer Datenquellen | `docs/codex_skills/SKILL_DATA_SOURCING_AND_LICENSING.md` |
+| synthetic-data-generator | Synthetische CV↔JD Paare mit Ground Truth erzeugen | Bei Tests, Explainability oder ML-Evaluation | `docs/codex_skills/SKILL_SYNTHETIC_DATA_GENERATOR.md` |
+| ml-evaluation-and-bias-check | ML Matching evaluieren und Bias Checks dokumentieren | Vor Review/Audit oder nach ML-Aenderungen | `docs/codex_skills/SKILL_ML_EVALUATION_AND_BIAS_CHECK.md` |
 
 ## 2) Skill-Dateien (einzeln erstellt)
 Jede Skill-Datei folgt diesem Template:
