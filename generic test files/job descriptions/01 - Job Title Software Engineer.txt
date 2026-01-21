@@ -1,0 +1,42 @@
+Job Title: Software Engineer (Backend / Data-Focused)
+
+Company Overview:
+We are a mid-sized technology company building internal tools and data-driven
+applications for regulated environments. Our focus is on reliability,
+maintainability, and transparent system behavior.
+
+Role Summary:
+We are looking for a Software Engineer to design, implement, and maintain
+backend services and data-processing components. The role emphasizes clean
+architecture, testability, and clear documentation.
+
+Key Responsibilities:
+- Design and implement backend services using Python
+- Process and analyze structured and semi-structured data
+- Write clean, testable, and well-documented code
+- Collaborate with product and technical stakeholders
+- Participate in code reviews and architectural discussions
+- Maintain unit and integration tests
+- Support CI/CD pipelines and quality checks
+
+Required Skills:
+- Programming experience with Python
+- Understanding of software architecture and modular design
+- Experience with unit testing and test automation
+- Familiarity with version control systems (Git)
+- Basic knowledge of REST APIs
+- Experience working with structured data (e.g., JSON, CSV)
+
+Preferred Skills:
+- Experience with data processing or data analysis
+- Familiarity with CI/CD pipelines
+- Knowledge of software quality standards
+- Experience in regulated or compliance-sensitive environments
+
+Education:
+- Bachelor’s degree in Computer Science, Software Engineering,
+  Business Informatics, or a related field
+
+Additional Information:
+This role values clarity, explainability, and sustainable engineering practices
+over rapid feature development.

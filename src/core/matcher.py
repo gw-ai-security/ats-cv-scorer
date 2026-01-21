@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
+
+from src.core.ml.calibration import Calibrator
+from src.core.ml.feature_fusion import FusionResult, fuse_features
+from src.core.ml.semantic_matcher import SemanticMatcher
 
 from src.core.ats_criteria_extractor import ATSCriteria
 from src.core.jd_parser import JDParseResult
@@ -115,3 +120,61 @@ class BaselineMatcher:
     def _collect_jd_skills(jd: JDParseResult) -> set[str]:
         values = jd.skills + jd.keywords
         return {value.lower() for value in values if value}
+
+
+class HybridMLMatcher:
+    """
+    Optional ML matcher that keeps the baseline intact and adds explainable signals.
+    """
+
+    def __init__(
+        self,
+        calibrator_path: str | None = None,
+        top_k_chunks: int = 3,
+    ) -> None:
+        self.semantic_matcher = SemanticMatcher(top_k=top_k_chunks)
+        self.calibrator = Calibrator(calibrator_path) if calibrator_path else None
+
+    def match(self, cv: ATSCriteria, jd: JDParseResult, cv_text: str, jd_text: str) -> MatchResult:
+        semantic = self.semantic_matcher.match(cv_text, jd_text)
+        fusion: FusionResult = fuse_features(
+            semantic_similarity=semantic.semantic_similarity,
+            cv=cv,
+            jd=jd,
+        )
+
+        score = fusion.score
+        if self.calibrator:
+            import numpy as np
+
+            features = np.array(
+                [[fusion.semantic_similarity, fusion.skill_overlap_score, fusion.section_coverage]]
+            )
+            calibrated = self.calibrator.predict(features)
+            score = round(calibrated * 100, 2)
+
+        breakdown = {
+            "semantic_similarity": fusion.semantic_similarity,
+            "skill_overlap_score": fusion.skill_overlap_score,
+            "section_coverage": fusion.section_coverage,
+            "top_matched_skills": fusion.top_matched_skills,
+            "top_matched_chunks": semantic.top_matched_chunks,
+        }
+        return MatchResult(score=score, breakdown=breakdown)
+
+
+def match_with_strategy(
+    strategy: str,
+    cv: ATSCriteria,
+    jd: JDParseResult,
+    cv_text: str | None = None,
+    jd_text: str | None = None,
+) -> MatchResult:
+    if strategy == "hybrid_ml":
+        if not cv_text or not jd_text:
+            raise ValueError("cv_text and jd_text are required for hybrid_ml matching.")
+        calibrator_path = os.getenv("ML_CALIBRATOR_PATH")
+        return HybridMLMatcher(calibrator_path=calibrator_path).match(
+            cv=cv, jd=jd, cv_text=cv_text, jd_text=jd_text
+        )
+    return BaselineMatcher().match(cv, jd)

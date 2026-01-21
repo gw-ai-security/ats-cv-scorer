@@ -1,7 +1,7 @@
 # ADR-002: ML-Matching Roadmap (Plan)
 
 ## Status
-Vorgeschlagen
+Akzeptiert (optional Hybrid-ML)
 
 ## Kontext
 Die aktuelle Basis ist regelbasiertes Matching fuer Transparenz und Determinismus.
@@ -16,8 +16,14 @@ Recruiter-relevante Kriterien:
 - klare Gaps vs. Must-have Anforderungen
 
 ## Entscheidung
-Ein ML-Plan baut auf der Baseline auf und verbessert Recall, ohne Erklaerbarkeit,
-Privacy-by-Design oder Reproduzierbarkeit zu verlieren.
+Ein optionales Hybrid-ML-Matching wird implementiert (Bi-Encoder Similarity + Feature-Fusion),
+die deterministische Baseline bleibt Default.
+
+## Implementierung (Aktuell)
+- ML-Module unter `src/core/ml/` (Embedding, Semantic Matcher, Feature Fusion).
+- Strategieauswahl in `src/core/matcher.py` mit Env-Flag `MATCHING_STRATEGY=hybrid_ml`.
+- Erklaerbarkeit: Semantic Similarity, Skill-Overlap, Section-Coverage, Top-Chunks.
+- Optionaler Calibrator via `ML_CALIBRATOR_PATH` (Logistic Regression), Baseline bleibt unberuehrt.
 
 ## ML-Plan (High Level)
 1) Datenerhebung
@@ -41,5 +47,5 @@ Privacy-by-Design oder Reproduzierbarkeit zu verlieren.
    - ML im Shadow Mode, Vergleich zur Baseline, dann optionaler Gate.
 
 ## Konsequenzen
-Deterministisches Matching bleibt primaer, bis ML nachweislich sicher,
-reproduzierbar und messbar besser ist.
+- Baseline bleibt Default und deterministisch.
+- ML ist optional und erklaerbar; Evaluation bleibt Voraussetzung fuer Abschluss.

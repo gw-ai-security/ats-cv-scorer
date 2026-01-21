@@ -38,6 +38,18 @@ py -m venv .venv
 .venv\Scripts\python.exe -m streamlit run frontend\streamlit_app.py
 ```
 
+## Optional ML Matching
+Enable the hybrid ML matcher (semantic similarity + feature fusion):
+
+```powershell
+$env:MATCHING_STRATEGY="hybrid_ml"
+.venv\Scripts\python.exe -m streamlit run frontend\streamlit_app.py
+```
+
+Notes:
+- The baseline matcher remains the default.
+- ML downloads the embedding model on first use.
+
 ## Repo Map
 - `frontend/` Streamlit UI
 - `src/core/` core processing (PDF extraction)

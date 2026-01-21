@@ -1,0 +1,68 @@
+Curriculum Vitae
+
+Name:
+Alex Morgan
+
+Profile:
+Detail-oriented Software Engineer with a strong focus on backend development,
+data processing, and code quality. Experienced in building maintainable
+software systems with an emphasis on transparency, testing, and documentation.
+
+Professional Experience:
+
+Software Engineer
+TechSolutions GmbH
+2021 – Present
+
+- Developed backend components using Python
+- Implemented data-processing pipelines for internal tools
+- Wrote unit and integration tests to ensure software reliability
+- Collaborated with cross-functional teams on system design
+- Participated in code reviews and improved code quality standards
+- Worked with Git-based version control and CI pipelines
+
+Junior Software Developer
+Digital Systems AG
+2019 – 2021
+
+- Supported development of backend services
+- Assisted in data analysis and reporting tasks
+- Maintained existing codebases and fixed defects
+- Wrote technical documentation for internal tools
+
+Education:
+
+Bachelor of Science in Business Informatics
+University of Applied Sciences
+2016 – 2019
+
+Skills:
+
+Programming Languages:
+- Python
+- SQL (basic)
+
+Software Engineering:
+- Backend development
+- Modular software design
+- Unit testing
+- Integration testing
+
+Tools and Technologies:
+- Git
+- CI/CD pipelines
+- REST APIs
+
+Additional Skills:
+- Technical documentation
+- Requirements understanding
+- Analytical thinking
+
+Languages:
+- English (fluent)
+- German (fluent)
+
+Interests:
+- Software quality
+- Clean architecture
+- Data-driven systems

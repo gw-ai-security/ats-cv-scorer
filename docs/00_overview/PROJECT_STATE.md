@@ -26,14 +26,19 @@
 - FR-006 JD Parsing umgesetzt (DE/EN)
 - FR-007 Baseline Matching mit Explainability umgesetzt
 - Tests fuer ATS-Extraktion, JD Parsing und Matching vorhanden
+- Streamlit UI fuer Upload/Preview implementiert
+- Optionales Hybrid-ML-Matching implementiert (Baseline bleibt Default)
 
 ## In Arbeit
-- Streamlit UI fuer Upload/Preview
+- Evaluation ausfuehren und Ergebnisse dokumentieren
+- Lern- und Portfolio-Artefakte mit Evaluationsergebnissen vervollstaendigen
+- ML-Matching evaluieren (Ranking/F1)
 
 ## Naechste Schritte
 - Explainable Scoring modellieren
 - ML-Matching Roadmap evaluieren
 - Traceability zu neuen Anforderungen erweitern
+- Evaluationsergebnisse gem. `docs/04_evaluation/EVALUATION_PLAN.md` erfassen
 
 ## Risiken / Blocker
 - PDF-Parsing kann variieren (Library/Platform)
