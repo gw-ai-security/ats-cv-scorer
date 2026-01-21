@@ -23,6 +23,6 @@ class Calibrator:
         if self._model is None:
             self._model = self._load()
         if self._model is None:
-            return float(features[0])
+            return float(features[0][0]) if features.size else 0.0
         prob = self._model.predict_proba(features)[:, 1]
         return float(prob[0])

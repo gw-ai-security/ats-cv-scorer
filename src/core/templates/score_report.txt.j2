@@ -1,0 +1,26 @@
+Meta Info
+Timestamp: {{ timestamp }}
+Strategy: {{ strategy }}
+Dataset: {{ dataset_id }}
+Score: {{ score }}%
+Candidate: {{ candidate_name }}
+JD Role: {{ jd_role }}
+
+Executive Summary
+Verdict: {{ verdict }}
+
+Score Breakdown
+{% for line in component_lines %}{{ line }}
+{% endfor %}
+
+Matched Skills + Evidence
+{% for line in matched_lines %}{{ line }}
+{% endfor %}
+
+Missing Required + Suggestions
+{% for line in missing_lines %}{{ line }}
+{% endfor %}
+
+Parsing Notes / Warnings
+{% for line in warning_lines %}{{ line }}
+{% endfor %}

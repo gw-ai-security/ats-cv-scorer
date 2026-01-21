@@ -1,0 +1,103 @@
+{
+  "version": "1.1.0",
+  "datasets": [
+    {
+      "dataset_id": "ats_scoring_dataset",
+      "source": "kaggle",
+      "expected_files": [
+        "**/train_data.json"
+      ],
+      "schema_mapping": {
+        "cv_text": "resume_text",
+        "jd_text": "job_description",
+        "label": "label",
+        "language": "language"
+      },
+      "label_strategy": "use_label_field",
+      "language": "unknown",
+      "adapter": "ats_scoring_dataset",
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "usage_status": "restricted",
+      "dataset_type": "cv_only"
+    },
+    {
+      "dataset_id": "resume_job_matching",
+      "source": "kaggle",
+      "expected_files": [
+        "**/train.csv"
+      ],
+      "schema_mapping": {
+        "cv_text": "resume",
+        "jd_text": "job_description",
+        "label": "match_label",
+        "language": "language"
+      },
+      "label_strategy": "use_label_field",
+      "language": "unknown",
+      "adapter": "resume_job_matching",
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "usage_status": "restricted",
+      "dataset_type": "paired"
+    },
+    {
+      "dataset_id": "resume_data_ranking",
+      "source": "kaggle",
+      "expected_files": [
+        "**/resume_data_for_ranking.csv"
+      ],
+      "schema_mapping": {
+        "cv_text": "resume",
+        "jd_text": "job_description",
+        "label": "label",
+        "language": "language"
+      },
+      "label_strategy": "normalize_label_values",
+      "language": "unknown",
+      "adapter": "resume_data_ranking",
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "usage_status": "restricted",
+      "dataset_type": "paired"
+    },
+    {
+      "dataset_id": "job_descriptions_2025",
+      "source": "kaggle",
+      "expected_files": [
+        "**/job_dataset.csv",
+        "**/job_dataset.json",
+        "**/all_job_post.csv"
+      ],
+      "schema_mapping": {
+        "jd_text": "description",
+        "language": "language"
+      },
+      "label_strategy": "no_labels",
+      "language": "unknown",
+      "adapter": "job_descriptions_2025",
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "usage_status": "restricted",
+      "dataset_type": "jd_only"
+    },
+    {
+      "dataset_id": "job_skill_set",
+      "source": "kaggle",
+      "expected_files": [
+        "**/resume_extraction.csv"
+      ],
+      "schema_mapping": {
+        "skill": "skill",
+        "category": "category"
+      },
+      "label_strategy": "no_labels",
+      "language": "unknown",
+      "adapter": "job_skill_set",
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "usage_status": "restricted",
+      "dataset_type": "skills_only"
+    }
+  ]
+}

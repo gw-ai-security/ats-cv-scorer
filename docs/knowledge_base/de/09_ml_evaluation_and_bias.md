@@ -46,8 +46,11 @@ Fuer jede Achse:
 - Ranking-Metriken nur gueltig, wenn Ranking-Setup vorhanden ist.
 
 ## Ergebnisse (Kurzfassung)
-- Ergebnisse aus `metrics.json` zusammenfassen, keine Rohdatenflut.
-- Unterschied Baseline vs. Hybrid klar benennen (Staerken/Schwaechen).
+- Zusammenfassung basierend auf `docs/04_evaluation/EVALUATION_RESULTS.md` (2026-01-21):
+  - Baseline: Accuracy 0.50, Macro F1 0.2222, MAE 0.0000 (synthetische Labels aus Baseline-Score).
+  - Hybrid ML: Accuracy 0.00, Macro F1 0.0000, MAE 18.4830 (unkalibriert, aktuelle Thresholds).
+  - Bias-Achsen indikativ; backend-Sample klein (n=2).
+  - Keine mismatch-Faelle im synthetischen Set.
 
 ## Empfehlungen
 - Synthetic Taxonomy erweitern, um Coverage zu erhoehen.
@@ -56,8 +59,10 @@ Fuer jede Achse:
 
 ## Verweise
 - `docs/04_evaluation/EVALUATION_PLAN.md`
+- `docs/04_evaluation/EVALUATION_RESULTS.md`
+- `docs/03_quality/EXPLAINABLE_SCORING_SPEC.md`
 - `docs/02_architecture/ADR/ADR-002-ml-matching.md`
 - `docs/codex_skills/SKILL_SYNTHETIC_DATA_GENERATOR.md`
 
 ## Last Updated
-2026-01-21 14:38:32 (Local)
+2026-01-21 14:53:02 (Local)

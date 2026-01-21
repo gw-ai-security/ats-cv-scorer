@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import tempfile
 
 import streamlit as st
@@ -10,8 +11,10 @@ from src.core.cv_analyzer import CVAnalyzer
 from src.core.jd_parser import JDParser, JDParseResult
 from src.core.matcher import BaselineMatcher, MatchResult, match_with_strategy
 from src.core.pdf_processor import PDFProcessor
+from src.core.pdf_layout import render_score_report_pdf
+from src.core.report_export import build_report_payload, render_report_markdown, json_dumps
 from src.core.skill_extractor import SkillExtractor
-from src.utils.config import get_matching_strategy
+from src.utils.config import get_matching_strategy, is_evaluation_gate_open
 from src.utils.validation import validate_upload
 
 
@@ -41,23 +44,52 @@ with st.sidebar:
     run_analysis = st.toggle("Run analysis", value=True)
     run_matching = st.toggle("Run matching (CV vs JD)", value=True)
     default_strategy = get_matching_strategy()
+    gate_open = is_evaluation_gate_open()
+    strategies = ["rule_based", "hybrid_ml"] if gate_open else ["rule_based"]
+    if not gate_open:
+        st.warning("Hybrid ML is disabled until evaluation results are documented.")
+    default_index = 0
+    if gate_open and default_strategy == "hybrid_ml":
+        default_index = 1
     matching_strategy = st.selectbox(
         "Matching strategy",
-        ["rule_based", "hybrid_ml"],
-        index=0 if default_strategy == "rule_based" else 1,
+        strategies,
+        index=default_index,
         help="hybrid_ml uses semantic similarity and feature fusion; rule_based is deterministic baseline.",
     )
+    demo_mode = st.toggle("Demo mode (synthetic fixtures)", value=False)
+    demo_pair_id = None
+    if demo_mode:
+        fixture_dir = Path("tests/fixtures/synth")
+        pair_ids = sorted({path.stem.replace("_cv", "") for path in fixture_dir.glob("pair_*_cv.txt")})
+        demo_pair_id = st.selectbox("Demo pair", pair_ids) if pair_ids else None
 
 status_slot = st.empty()
+
+
+def _load_demo_pair(pair_id: str) -> tuple[str, str]:
+    base = Path("tests/fixtures/synth")
+    cv_path = base / f"{pair_id}_cv.txt"
+    jd_path = base / f"{pair_id}_jd.txt"
+    cv_text = cv_path.read_text(encoding="utf-8") if cv_path.exists() else ""
+    jd_text = jd_path.read_text(encoding="utf-8") if jd_path.exists() else ""
+    return cv_text, jd_text
 
 
 def _build_match_explanations(match: MatchResult, ats: ATSCriteria) -> list[str]:
     explanations: list[str] = []
     breakdown = match.breakdown
 
+    penalties = breakdown.get("penalties", {})
+    missing_required = penalties.get("missing_required_skills", [])
+    unverified = breakdown.get("skills", {}).get("unverified_skills", [])
     skill_gaps = breakdown["skills"].get("gaps", [])
+    if missing_required:
+        explanations.append(f"Missing required skills: {', '.join(missing_required)}")
     if skill_gaps:
         explanations.append(f"Missing JD skills: {', '.join(skill_gaps)}")
+    if unverified:
+        explanations.append(f"Skills without evidence in experience: {', '.join(unverified)}")
 
     language_gaps = breakdown["language"].get("gaps", [])
     if language_gaps:
@@ -202,6 +234,13 @@ def _render_ml_explanation(match: MatchResult) -> None:
     st.write(f"Semantic similarity: {match.breakdown.get('semantic_similarity')}")
     st.write(f"Skill overlap score: {match.breakdown.get('skill_overlap_score')}")
     st.write(f"Section coverage: {match.breakdown.get('section_coverage')}")
+    penalties = match.breakdown.get("penalties", {})
+    if penalties:
+        st.write("Penalties (informational):")
+        missing_required = penalties.get("missing_required_skills", [])
+        if missing_required:
+            st.write(f"- Missing required skills: {', '.join(missing_required)}")
+        st.write(f"- Keyword stuffing risk: {penalties.get('keyword_stuffing_risk')}")
     top_skills = match.breakdown.get("top_matched_skills", [])
     if top_skills:
         st.write("Top matched skills:")
@@ -236,10 +275,10 @@ def _pdf_bytes_from_text(text: str) -> bytes | None:
     return buffer.read()
 
 
-if uploader is None and not cv_text_input.strip():
+if not demo_mode and uploader is None and not cv_text_input.strip():
     st.info("Upload a PDF or paste CV text to start.")
 else:
-    if uploader is not None:
+    if uploader is not None and not demo_mode:
         validation = validate_upload(uploader)
         if not validation.ok:
             st.error(validation.error or "Upload validation failed.")
@@ -259,7 +298,19 @@ else:
     jd_temp_path = None
 
     try:
-        if uploader is not None:
+        if demo_mode and demo_pair_id:
+            cv_demo_text, jd_demo_text = _load_demo_pair(demo_pair_id)
+            class _TextResult:
+                def __init__(self, text: str) -> None:
+                    self.text = text
+                    self.method = "demo"
+                    self.quality = "high" if text.strip() else "low"
+                    self.page_count = 0
+                    self.word_count = len(text.split())
+                    self.error = None
+            result = _TextResult(cv_demo_text)
+            jd_text = jd_demo_text
+        elif uploader is not None:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
                 tmp.write(uploader.getbuffer())
                 temp_path = tmp.name
@@ -291,6 +342,8 @@ else:
                     "error": result.error,
                 }
             )
+            if result.quality == "low":
+                st.warning("Extraction quality is low; results may be incomplete.")
             ats_preview = ats_extractor.extract(result.text)
             st.subheader("Match summary")
             st.write("Upload or paste a JD to calculate the score.")
@@ -334,22 +387,24 @@ else:
                     }
                 )
 
-            jd_text = None
+            if demo_mode and demo_pair_id:
+                parsed_jd = jd_parser.parse(jd_text or "")
             parsed_jd = None
-            if jd_uploader is not None:
-                jd_validation = validate_upload(jd_uploader)
-                if not jd_validation.ok:
-                    st.error(jd_validation.error or "JD upload validation failed.")
-                else:
-                    if jd_temp_path is None:
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                            tmp.write(jd_uploader.getbuffer())
-                            jd_temp_path = tmp.name
-                    jd_result = processor.extract_text(jd_temp_path)
-                    jd_text = jd_result.text
-            elif jd_text_input.strip():
-                jd_text = jd_text_input
-
+            if not demo_mode:
+                jd_text = None
+                if jd_uploader is not None:
+                    jd_validation = validate_upload(jd_uploader)
+                    if not jd_validation.ok:
+                        st.error(jd_validation.error or "JD upload validation failed.")
+                    else:
+                        if jd_temp_path is None:
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                                tmp.write(jd_uploader.getbuffer())
+                                jd_temp_path = tmp.name
+                        jd_result = processor.extract_text(jd_temp_path)
+                        jd_text = jd_result.text
+                elif jd_text_input.strip():
+                    jd_text = jd_text_input
             if jd_text:
                 parsed_jd = jd_parser.parse(jd_text)
 
@@ -367,18 +422,62 @@ else:
                 else:
                     ats_result = ats_extractor.extract(result.text)
                     if matching_strategy == "hybrid_ml":
-                        match_result = match_with_strategy(
-                            matching_strategy,
-                            ats_result,
-                            parsed_jd,
-                            cv_text=result.text,
-                            jd_text=jd_text or "",
-                        )
-                        st.metric("Match score (ML)", f"{match_result.score}%")
+                        try:
+                            match_result = match_with_strategy(
+                                matching_strategy,
+                                ats_result,
+                                parsed_jd,
+                                cv_text=result.text,
+                                jd_text=jd_text or "",
+                            )
+                            st.metric("Match score (ML)", f"{match_result.score}%")
+                        except ValueError as exc:
+                            st.error(str(exc))
+                            match_result = matcher.match(ats_result, parsed_jd)
+                            st.metric("Match score", f"{match_result.score}%")
                     else:
                         match_result = matcher.match(ats_result, parsed_jd)
                         st.metric("Match score", f"{match_result.score}%")
                     st.write(match_result.breakdown)
+
+                    try:
+                        report_pdf = render_score_report_pdf(
+                            match=match_result,
+                            ats=ats_result,
+                            jd=parsed_jd,
+                            strategy=matching_strategy,
+                            dataset_id="synthetic_fixture" if demo_mode else "upload",
+                        )
+                        st.download_button(
+                            "Download score report (PDF)",
+                            data=report_pdf,
+                            file_name="score_report.pdf",
+                            mime="application/pdf",
+                        )
+                    except Exception:
+                        st.info("PDF report requires reportlab to be installed.")
+
+                    report_payload = build_report_payload(
+                        match=match_result,
+                        ats=ats_result,
+                        jd=parsed_jd,
+                        strategy=matching_strategy,
+                        dataset_id="synthetic_fixture" if demo_mode else "upload",
+                    )
+                    json_bytes = json_dumps(report_payload).encode("utf-8")
+                    st.download_button(
+                        "Download score report (JSON)",
+                        data=json_bytes,
+                        file_name="score_report.json",
+                        mime="application/json",
+                    )
+                    md_text = render_report_markdown(report_payload)
+                    st.download_button(
+                        "Download score report (MD)",
+                        data=md_text.encode("utf-8"),
+                        file_name="score_report.md",
+                        mime="text/markdown",
+                    )
 
                     with right:
                         if matching_strategy == "hybrid_ml":

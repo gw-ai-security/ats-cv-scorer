@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
+import re
 
 from src.core.ml.calibration import Calibrator
 from src.core.ml.feature_fusion import FusionResult, fuse_features
@@ -9,6 +10,7 @@ from src.core.ml.semantic_matcher import SemanticMatcher
 
 from src.core.ats_criteria_extractor import ATSCriteria
 from src.core.jd_parser import JDParseResult
+from src.utils.config import is_evaluation_gate_open
 
 
 @dataclass(frozen=True)
@@ -37,6 +39,7 @@ class BaselineMatcher:
         education_score, education_detail = self._match_education(cv, jd)
         language_score, language_detail = self._match_language(cv, jd)
         location_score, location_detail = self._match_location(cv, jd)
+        penalties = self._build_penalties(cv, jd)
 
         total = (
             skill_score * self.weights["skills"]
@@ -52,6 +55,7 @@ class BaselineMatcher:
             "education": education_detail | {"score": education_score},
             "language": language_detail | {"score": language_score},
             "location": location_detail | {"score": location_score},
+            "penalties": penalties,
         }
 
         return MatchResult(score=round(total * 100, 2), breakdown=breakdown)
@@ -67,8 +71,18 @@ class BaselineMatcher:
         matched = sorted(cv_skills & jd_skills)
         gaps = sorted(jd_skills - cv_skills)
         score = len(matched) / max(len(jd_skills), 1)
+        evidence = BaselineMatcher._skill_evidence(cv, matched)
+        evidence_ratio = evidence["evidence_ratio"]
+        if matched:
+            score *= evidence_ratio
 
-        return score, {"matched": matched, "gaps": gaps}
+        return score, {
+            "matched": matched,
+            "gaps": gaps,
+            "evidence_ratio": evidence_ratio,
+            "unverified_skills": evidence["unverified_skills"],
+            "evidence_snippets": evidence["evidence_snippets"],
+        }
 
     @staticmethod
     def _match_experience(cv: ATSCriteria, jd: JDParseResult) -> tuple[float, dict[str, object]]:
@@ -121,6 +135,55 @@ class BaselineMatcher:
         values = jd.skills + jd.keywords
         return {value.lower() for value in values if value}
 
+    @staticmethod
+    def _build_penalties(cv: ATSCriteria, jd: JDParseResult) -> dict[str, object]:
+        cv_skills = BaselineMatcher._collect_cv_skills(cv)
+        jd_skills = BaselineMatcher._collect_jd_skills(jd)
+        missing_required = sorted(jd_skills - cv_skills)
+        has_skills = bool(cv_skills)
+        keyword_stuffing_risk = has_skills and not cv.experience
+        evidence = BaselineMatcher._skill_evidence(cv, sorted(cv_skills & jd_skills))
+        return {
+            "missing_required_skills": missing_required,
+            "missing_required_count": len(missing_required),
+            "keyword_stuffing_risk": keyword_stuffing_risk,
+            "unverified_skill_count": len(evidence["unverified_skills"]),
+            "evidence_ratio": evidence["evidence_ratio"],
+        }
+
+    @staticmethod
+    def _skill_evidence(cv: ATSCriteria, matched: list[str]) -> dict[str, object]:
+        if not matched:
+            return {"evidence_ratio": 1.0, "unverified_skills": [], "evidence_snippets": {}}
+        evidence_snippets: dict[str, str] = {}
+        unverified = []
+        experience_lines = []
+        for entry in cv.experience:
+            for key in ("role", "company", "responsibilities"):
+                value = entry.get(key, "")
+                if value:
+                    experience_lines.append(value)
+        if cv.summary and cv.summary != "not_found":
+            experience_lines.append(cv.summary)
+        combined = " ".join(experience_lines).lower()
+        for skill in matched:
+            skill_lower = skill.lower()
+            if skill_lower in combined:
+                snippet = ""
+                for line in experience_lines:
+                    if re.search(rf"(?i)\\b{re.escape(skill_lower)}\\b", line):
+                        snippet = line.strip()
+                        break
+                evidence_snippets[skill] = snippet[:140] if snippet else "evidence_found"
+            else:
+                unverified.append(skill)
+        evidence_ratio = (len(matched) - len(unverified)) / max(len(matched), 1)
+        return {
+            "evidence_ratio": round(evidence_ratio, 4),
+            "unverified_skills": unverified,
+            "evidence_snippets": evidence_snippets,
+        }
+
 
 class HybridMLMatcher:
     """
@@ -142,13 +205,24 @@ class HybridMLMatcher:
             cv=cv,
             jd=jd,
         )
+        penalties = BaselineMatcher._build_penalties(cv, jd)
+        evidence = BaselineMatcher._skill_evidence(cv, fusion.top_matched_skills)
 
         score = fusion.score
         if self.calibrator:
             import numpy as np
 
             features = np.array(
-                [[fusion.semantic_similarity, fusion.skill_overlap_score, fusion.section_coverage]]
+                [
+                    [
+                        fusion.semantic_similarity,
+                        fusion.skill_overlap_score,
+                        fusion.section_coverage,
+                        penalties.get("missing_required_count", 0),
+                        1.0 if penalties.get("keyword_stuffing_risk") else 0.0,
+                        penalties.get("evidence_ratio", 1.0),
+                    ]
+                ]
             )
             calibrated = self.calibrator.predict(features)
             score = round(calibrated * 100, 2)
@@ -159,6 +233,8 @@ class HybridMLMatcher:
             "section_coverage": fusion.section_coverage,
             "top_matched_skills": fusion.top_matched_skills,
             "top_matched_chunks": semantic.top_matched_chunks,
+            "penalties": penalties,
+            "evidence_snippets": evidence["evidence_snippets"],
         }
         return MatchResult(score=score, breakdown=breakdown)
 
@@ -171,6 +247,8 @@ def match_with_strategy(
     jd_text: str | None = None,
 ) -> MatchResult:
     if strategy == "hybrid_ml":
+        if not is_evaluation_gate_open():
+            raise ValueError("Evaluation gate is closed; hybrid_ml is disabled.")
         if not cv_text or not jd_text:
             raise ValueError("cv_text and jd_text are required for hybrid_ml matching.")
         calibrator_path = os.getenv("ML_CALIBRATOR_PATH")

@@ -1,0 +1,1 @@
+{"pair_id":"pair_ext_0001","cv_text":"Profile: Backend engineer with Python and SQL experience.","jd_text":"Required: Python, SQL.","expected_label":"strong_match","expected_score_range":[60.0,90.0],"metadata":{"source":"sample_synthetic","language":"en","job_family":"backend","difficulty":"easy"}}

@@ -20,6 +20,24 @@ Document external data sources and perform a licensing/compliance review before 
 - **rejected**: License prohibits use, PII risk not manageable, or scope drift.
 - If license is unclear: set `restricted` and document the rationale.
 
+## Kaggle Local ZIP Workflow
+- Place ZIPs under `data/external/kaggle/_incoming_zips/` (ignored by git).
+- Unzip into `data/external/kaggle/_unzipped/` (ignored by git).
+- Run `scripts/data/ingest_kaggle_zips.py` to produce `data/processed/datasets/<dataset_id>.jsonl`.
+- Register datasets in `data/processed/registry.json`.
+- Current dataset IDs (restricted until license verified):
+  - `ats_scoring_dataset`
+  - `resume_job_matching`
+  - `resume_data_ranking`
+  - `job_descriptions_2025`
+  - `job_skill_set`
+
+### Registry Fields (Compliance)
+- `source_url`: dataset landing page (unknown until verified).
+- `license_label`: explicit license name (default `unknown`).
+- `usage_status`: `restricted` until license + PII status is documented.
+- `dataset_type`: `paired|cv_only|jd_only|skills_only` for downstream handling.
+
 ## Current Assessments (initial)
 ### Kaggle Resume / Job Description Dataset (source pending)
 - Source name: Kaggle Resume / Job Description (dataset not selected yet)
@@ -91,7 +109,8 @@ Document external data sources and perform a licensing/compliance review before 
 ## References
 - `docs/04_evaluation/EVALUATION_PLAN.md`
 - `docs/02_architecture/ADR/ADR-002-ml-matching.md`
+- `docs/knowledge_base/en/external_data_sources.md`
 - `docs/project_state/`
 
 ## Last Updated
-2026-01-21 14:21:32 (Local)
+2026-01-21 16:32:30 (Local)

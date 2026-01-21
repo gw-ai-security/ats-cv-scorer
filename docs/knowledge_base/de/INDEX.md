@@ -24,6 +24,9 @@ Zentraler Einstiegspunkt der Knowledge Base. Dient als Single Source of Truth un
 - Data Sources & Licensing: `docs/knowledge_base/de/07_data_sources_and_licensing.md`
 - Synthetic Data Generation: `docs/knowledge_base/de/08_synthetic_data_generation.md`
 - ML Evaluation & Bias Check: `docs/knowledge_base/de/09_ml_evaluation_and_bias.md`
+- External Data Sources: `docs/knowledge_base/de/external_data_sources.md`
+- Data Pipeline Standard: `docs/knowledge_base/de/data_pipeline_standard.md`
+- PDF Report Layout: `docs/knowledge_base/de/pdf_report_layout.md`
 
 ## Verweise
 - Project Snapshot: `docs/project_state/`
@@ -31,4 +34,4 @@ Zentraler Einstiegspunkt der Knowledge Base. Dient als Single Source of Truth un
 - Skill-Uebersicht: `docs/codex_skills/OVERVIEW.md`
 
 ## Last Updated
-2026-01-21 14:38:32 (Local)
+2026-01-21 15:36:12 (Local)

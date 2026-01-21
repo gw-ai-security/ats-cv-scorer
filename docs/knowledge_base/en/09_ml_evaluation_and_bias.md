@@ -46,8 +46,11 @@ For each axis:
 - Ranking metrics only valid with a ranking setup.
 
 ## Results (Summary)
-- Summarize results from `metrics.json`, avoid raw numbers flood.
-- Clearly state baseline vs hybrid strengths/weaknesses.
+- Summary based on `docs/04_evaluation/EVALUATION_RESULTS.md` (2026-01-21):
+  - Baseline: accuracy 0.50, macro F1 0.2222, MAE 0.0000 (synthetic labels derived from baseline scores).
+  - Hybrid ML: accuracy 0.00, macro F1 0.0000, MAE 18.4830 (uncalibrated fusion + current thresholds).
+  - Bias axes are indicative; backend sample is small (n=2).
+  - No mismatch class present in the synthetic set.
 
 ## Recommendations
 - Expand synthetic taxonomy to improve coverage.
@@ -56,8 +59,10 @@ For each axis:
 
 ## References
 - `docs/04_evaluation/EVALUATION_PLAN.md`
+- `docs/04_evaluation/EVALUATION_RESULTS.md`
+- `docs/03_quality/EXPLAINABLE_SCORING_SPEC.md`
 - `docs/02_architecture/ADR/ADR-002-ml-matching.md`
 - `docs/codex_skills/SKILL_SYNTHETIC_DATA_GENERATOR.md`
 
 ## Last Updated
-2026-01-21 14:38:32 (Local)
+2026-01-21 14:53:02 (Local)

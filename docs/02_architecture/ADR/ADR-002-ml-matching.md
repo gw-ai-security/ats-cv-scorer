@@ -22,8 +22,10 @@ and feature fusion, while keeping the deterministic baseline as default.
 ## Implementation (Current)
 - Optional ML modules live under `src/core/ml/` (embedding model, semantic matcher, feature fusion).
 - Strategy selection in `src/core/matcher.py` with env flag `MATCHING_STRATEGY=hybrid_ml`.
-- Explainability includes semantic similarity, skill overlap, section coverage, and top matched chunks.
+- Evaluation gate: hybrid_ml only available when `docs/04_evaluation/EVALUATION_RESULTS.md` is present and marked completed.
+- Explainability includes semantic similarity, skill overlap, section coverage, top matched chunks, and penalty signals.
 - Optional calibrator hook via `ML_CALIBRATOR_PATH` (logistic regression) without breaking baseline.
+ - Streamlit UI exposes a strategy toggle and disables hybrid_ml when the evaluation gate is closed.
 
 ## ML Plan (High Level)
 1) Data collection

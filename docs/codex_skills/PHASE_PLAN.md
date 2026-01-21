@@ -1,6 +1,6 @@
 ﻿# ATS CV Scorer - Phasenplan & Skill-Orchestrierung
 
-Statusgrundlage: Project Snapshot `docs/project_state/2026-01-21/123522_project_snapshot.md`.
+Statusgrundlage: Project Snapshot `docs/project_state/2026-01-21/144012_project_snapshot.md`.
 Hinweis: Status in diesem Plan reflektiert den Snapshot, nicht spaetere Aenderungen.
 
 ## 1) Gesamt-Phasenuebersicht
@@ -8,10 +8,11 @@ Hinweis: Status in diesem Plan reflektiert den Snapshot, nicht spaetere Aenderun
 |-------|------|------|--------|
 | Phase 0 | Projektgrundlagen | Repo, Scope, Privacy, Basis-Dokumentation | erledigt |
 | Phase 1 | Requirements & Governance | Anforderungen, Traceability, Qualitaets- und Evaluationsregeln | erledigt |
-| Phase 2 | Architektur & Design | Architekturentscheidungen und ADRs | erledigt |
+| Phase 2 | ML Integration & Demo Readiness | Hybrid ML, Explainability, Evaluation Gate, UI Demo | erledigt |
 | Phase 3 | Implementierung | Kernmodule, Matching, UI | erledigt |
-| Phase 4 | Qualitaet & Evaluation | Tests/CI, Evaluation | in Arbeit |
+| Phase 4 | Qualitaet & Evaluation | Tests/CI, Evaluation | erledigt |
 | Phase 5 | Reflektion & Portfolio | Projektkontext, Lern- und Portfolio-Artefakte | in Arbeit |
+| vNext | External Data & Reporting | Kaggle Ingestion, Externe Evaluation, Exports, Demo | in Arbeit |
 
 ## 2) Phase 0 - Projektgrundlagen (ERLEDIGT)
 ### Ziel
@@ -51,20 +52,25 @@ Requirements Engineer, QA Lead
 - FR/NFR und Traceability sind vorhanden.
 - Quality Gates und Evaluation Plan sind dokumentiert.
 
-## 4) Phase 2 - Architektur & Design (ERLEDIGT)
+## 4) Phase 2 - ML Integration & Demo Readiness (ERLEDIGT)
 ### Ziel
-Architekturentscheidungen dokumentieren und begruenden.
+Hybrid ML optional integrieren, Explainability sicherstellen, Evaluation Gate und UI Demo absichern.
 ### Rollen
-Software Architect, Tech Lead
+Software Architect, ML Engineer, Frontend Engineer
 ### Aufgaben
 | Aufgabe | Rolle | Status | Begruendung | Referenz |
 |---------|-------|--------|-------------|----------|
-| Streamlit als MVP UI entscheiden (ADR-001) | Software Architect | erledigt | ADR dokumentiert | `docs/02_architecture/ADR/ADR-001-streamlit-mvp.md` |
-| ML-Matching Plan dokumentieren (ADR-002) | Software Architect | erledigt | ADR dokumentiert (Proposed) | `docs/02_architecture/ADR/ADR-002-ml-matching.md` |
+| Hybrid ML Matcher integrieren (optional) | ML Engineer | erledigt | Hybrid-Strategie vorhanden, Baseline bleibt Default | `src/core/matcher.py`, `src/core/ml/` |
+| Evaluation Gate fuer ML implementieren | Software Architect | erledigt | Gate in Config + UI dokumentiert | `src/utils/config.py`, `frontend/streamlit_app.py`, `docs/04_evaluation/EVALUATION_RESULTS.md` |
+| Explainable Scoring Spezifikation finalisieren | Software Architect | erledigt | Spezifikation dokumentiert | `docs/03_quality/EXPLAINABLE_SCORING_SPEC.md` |
+| Streamlit Demo-UI fuer Strategy + Explainability | Frontend Engineer | erledigt | Toggle + Breakdown vorhanden | `frontend/streamlit_app.py` |
+| ADR-002 aktualisieren (Evaluation Gate, Explainability) | Software Architect | erledigt | ADR aktualisiert | `docs/02_architecture/ADR/ADR-002-ml-matching.md` |
 ### Abschlusskriterien
-- ADRs sind dokumentiert und referenzierbar.
+- Hybrid ML ist optional und gated.
+- Explainability ist dokumentiert und in der UI sichtbar.
+- ADR-002 reflektiert die Umsetzung.
 
-## 5) Phase 3 - Implementierung (IN ARBEIT)
+## 5) Phase 3 - Implementierung (ERLEDIGT)
 ### Ziel
 Kernfunktionalitaet implementieren und integrieren.
 ### Rollen
@@ -85,7 +91,7 @@ Backend Engineer, Frontend Engineer
 - FR-001 bis FR-007 sind implementiert und getestet.
 - UI ist funktionsfaehig fuer Upload, Preview und Matching.
 
-## 6) Phase 4 - Qualitaet & Evaluation (IN ARBEIT)
+## 6) Phase 4 - Qualitaet & Evaluation (ERLEDIGT)
 ### Ziel
 Qualitaet sichern und Evaluation messbar machen.
 ### Rollen
@@ -96,13 +102,13 @@ QA Engineer, Evaluation Lead
 | Testsuite und CI etablieren | QA Engineer | erledigt | Tests und CI Workflow vorhanden | `tests/`, `.github/workflows/ci.yml` |
 | Quality Gates dokumentieren | QA Engineer | erledigt | Dokument vorhanden | `docs/03_quality/QUALITY_GATES.md` |
 | Evaluation Plan definieren | Evaluation Lead | erledigt | Dokument vorhanden | `docs/04_evaluation/EVALUATION_PLAN.md` |
-| Evaluation ausfuehren und Ergebnisse dokumentieren | Evaluation Lead | in Arbeit | Results-Dokument angelegt, Ausfuehrung ausstehend | `docs/04_evaluation/EVALUATION_RESULTS.md` |
-| ML-Matching evaluieren (Ranking/F1) | Evaluation Lead | in Arbeit | Metriken definiert, Daten fehlen | `docs/04_evaluation/EVALUATION_PLAN.md` |
+| Evaluation ausfuehren und Ergebnisse dokumentieren | Evaluation Lead | erledigt | Ergebnisse dokumentiert | `docs/04_evaluation/EVALUATION_RESULTS.md` |
+| ML-Matching evaluieren (Ranking/F1) | Evaluation Lead | erledigt | Baseline/Hybrid dokumentiert, Ranking nicht anwendbar | `docs/04_evaluation/EVALUATION_RESULTS.md` |
 ### Abschlusskriterien
 - Tests und CI laufen stabil.
 - Evaluationsergebnisse sind dokumentiert.
 
-## 7) Phase 5 - Reflektion & Portfolio (OFFEN)
+## 7) Phase 5 - Reflektion & Portfolio (IN ARBEIT)
 ### Ziel
 Projekt als Lern- und Portfolio-Artefakt abschliessen.
 ### Rollen
@@ -116,6 +122,22 @@ Learning Engineer, Projektowner
 ### Abschlusskriterien
 - Aktueller Snapshot ist vorhanden.
 - Lern- und Portfolio-Artefakte sind dokumentiert.
+
+## 8) vNext - External Data & Reporting (IN ARBEIT)
+### Ziel
+External Data Support, Reporting-Exports und Demo-Flow auf Release-Niveau.
+### Rollen
+Data Engineer, ML Engineer, Frontend Engineer, QA Lead
+### Aufgaben
+| Aufgabe | Rolle | Status | Begruendung | Referenz |
+|---------|-------|--------|-------------|----------|
+| Local ZIP Ingestion + Registry | Data Engineer | in Arbeit | Pipeline und Registry implementiert | `scripts/data/ingest_kaggle_zips.py`, `data/processed/registry.json` |
+| External Data Quality + PII Scan | QA Lead | in Arbeit | Reports erstellt, weitere Validierung offen | `docs/04_evaluation/EXTERNAL_DATA_QUALITY.md`, `docs/04_evaluation/PII_SCAN_REPORT.md` |
+| External Evaluation Summary | Evaluation Lead | in Arbeit | Baseline-Run dokumentiert | `docs/04_evaluation/EVALUATION_RESULTS_EXTERNAL.md` |
+| Report Exports (PDF/JSON/MD) | Frontend Engineer | in Arbeit | Exports integriert | `src/core/report_export.py`, `frontend/streamlit_app.py` |
+### Abschlusskriterien
+- External Dataset Workflow ist reproduzierbar dokumentiert.
+- Reports sind exportierbar und UI-Demo laeuft stabil.
 
 ---
 

@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+from datetime import datetime
 from pathlib import Path
+import sys
 from typing import Iterable
 
 from src.core.ats_criteria_extractor import ATSCriteriaExtractor
@@ -23,16 +25,40 @@ def parse_args() -> argparse.Namespace:
         help="Path to synthetic pairs.jsonl.",
     )
     parser.add_argument(
+        "--processed-dir",
+        type=Path,
+        default=None,
+        help="Optional processed data directory containing pairs.jsonl.",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=None,
+        help="Dataset ID under data/processed/datasets/<dataset_id>.jsonl",
+    )
+    parser.add_argument(
         "--outdir",
         type=Path,
         default=Path("evaluation_outputs"),
         help="Output directory for metrics and confusion matrix.",
     )
     parser.add_argument(
+        "--summary-out",
+        type=Path,
+        default=None,
+        help="Optional markdown summary output path.",
+    )
+    parser.add_argument(
         "--strategy",
         choices=["baseline", "hybrid_ml", "both"],
         default="both",
         help="Which matcher(s) to evaluate.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Optional limit on number of records evaluated.",
     )
     parser.add_argument(
         "--strong-threshold",
@@ -49,9 +75,16 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_pairs(pairs_path: Path) -> list[dict[str, object]]:
+def load_pairs(pairs_path: Path, limit: int | None = None) -> list[dict[str, object]]:
+    records = []
     with pairs_path.open("r", encoding="utf-8") as handle:
-        return [json.loads(line) for line in handle if line.strip()]
+        for line in handle:
+            if not line.strip():
+                continue
+            records.append(json.loads(line))
+            if limit and len(records) >= limit:
+                break
+    return records
 
 
 def score_to_label(score: float, strong_threshold: float, partial_threshold: float) -> str:
@@ -121,6 +154,12 @@ def parse_flags(rationale: str) -> dict[str, bool]:
     }
 
 
+def _load_text(record: dict[str, object], base_dir: Path, key: str, file_key: str) -> str:
+    if file_key in record:
+        return (base_dir / record[file_key]).read_text(encoding="utf-8")
+    return str(record.get(key) or "")
+
+
 def evaluate_records(
     records: list[dict[str, object]],
     base_dir: Path,
@@ -137,8 +176,8 @@ def evaluate_records(
     details: list[dict[str, object]] = []
 
     for record in records:
-        cv_text = (base_dir / record["cv_file"]).read_text(encoding="utf-8")
-        jd_text = (base_dir / record["jd_file"]).read_text(encoding="utf-8")
+        cv_text = _load_text(record, base_dir, "cv_text", "cv_file")
+        jd_text = _load_text(record, base_dir, "jd_text", "jd_file")
         cv = cv_extractor.extract(cv_text)
         jd = jd_parser.parse(jd_text)
 
@@ -150,31 +189,55 @@ def evaluate_records(
             jd_text=jd_text,
         )
         predicted_label = score_to_label(result.score, strong_threshold, partial_threshold)
-        true_label = record["expected_label"]
+        true_label = record.get("expected_label") or record.get("label")
 
-        true_labels.append(true_label)
-        pred_labels.append(predicted_label)
-        error = range_error(result.score, record["expected_score_range"])
-        score_errors.append(error)
+        if true_label:
+            true_labels.append(str(true_label))
+            pred_labels.append(predicted_label)
+            expected_range = record.get("expected_score_range")
+            if expected_range:
+                error = range_error(result.score, expected_range)
+                score_errors.append(error)
+            else:
+                score_errors.append(0.0)
 
         flags = parse_flags(record.get("rationale", ""))
         details.append(
             {
-                "pair_id": record["pair_id"],
+                "pair_id": record.get("pair_id") or record.get("id") or "unknown",
                 "expected_label": true_label,
                 "predicted_label": predicted_label,
                 "score": result.score,
-                "expected_score_range": record["expected_score_range"],
-                "error": error,
+                "expected_score_range": record.get("expected_score_range"),
+                "error": score_errors[-1] if score_errors else 0.0,
                 "metadata": record.get("metadata", {}),
                 "flags": flags,
             }
         )
 
-    confusion = compute_confusion(true_labels, pred_labels)
-    classification = precision_recall_f1(confusion)
+    classification = None
+    confusion_rows = []
     mae = sum(score_errors) / max(len(score_errors), 1)
     rmse = (sum(error**2 for error in score_errors) / max(len(score_errors), 1)) ** 0.5
+    if true_labels:
+        confusion = compute_confusion(true_labels, pred_labels)
+        classification = precision_recall_f1(confusion)
+        confusion_rows = confusion_to_rows(confusion)
+
+    descriptive = None
+    if not true_labels:
+        scores = [item["score"] for item in details]
+        if scores:
+            scores_sorted = sorted(scores)
+            descriptive = {
+                "count": len(scores),
+                "min": round(scores_sorted[0], 4),
+                "p50": round(scores_sorted[len(scores_sorted) // 2], 4),
+                "p90": round(scores_sorted[int(len(scores_sorted) * 0.9) - 1], 4)
+                if len(scores_sorted) >= 2
+                else round(scores_sorted[0], 4),
+                "max": round(scores_sorted[-1], 4),
+            }
 
     return {
         "classification": classification,
@@ -187,7 +250,8 @@ def evaluate_records(
             "ndcg": None,
             "note": "not_applicable_single_pair",
         },
-        "confusion": confusion,
+        "confusion_rows": confusion_rows,
+        "descriptive": descriptive,
         "details": details,
     }
 
@@ -205,8 +269,12 @@ def group_metrics(details: list[dict[str, object]], axis: str) -> dict[str, obje
 
     results = {}
     for value, items in grouped.items():
-        true_labels = [item["expected_label"] for item in items]
-        pred_labels = [item["predicted_label"] for item in items]
+        filtered = [item for item in items if item.get("expected_label")]
+        true_labels = [item["expected_label"] for item in filtered]
+        pred_labels = [item["predicted_label"] for item in filtered]
+        if not true_labels:
+            results[value] = {"count": len(items), "note": "no_labels"}
+            continue
         confusion = compute_confusion(true_labels, pred_labels)
         classification = precision_recall_f1(confusion)
         errors = [item["error"] for item in items]
@@ -231,10 +299,33 @@ def write_confusion_csv(confusion: dict[tuple[str, str], int], path: Path, model
                 writer.writerow([model, true_label, pred_label, confusion.get((true_label, pred_label), 0)])
 
 
+def confusion_to_rows(confusion: dict[tuple[str, str], int]) -> list[dict[str, object]]:
+    rows = []
+    for true_label in LABELS:
+        for pred_label in LABELS:
+            rows.append(
+                {
+                    "label_true": true_label,
+                    "label_pred": pred_label,
+                    "count": confusion.get((true_label, pred_label), 0),
+                }
+            )
+    return rows
+
+
 def main() -> None:
     args = parse_args()
-    records = load_pairs(args.pairs)
-    base_dir = args.pairs.parent
+    pairs_path = args.pairs
+    dataset_id = None
+    if args.dataset:
+        dataset_id = args.dataset
+        pairs_path = Path("data/processed/datasets") / f"{args.dataset}.jsonl"
+    elif args.processed_dir:
+        candidate = args.processed_dir / "pairs.jsonl"
+        if candidate.exists():
+            pairs_path = candidate
+    records = load_pairs(pairs_path, args.limit)
+    base_dir = pairs_path.parent
     args.outdir.mkdir(parents=True, exist_ok=True)
 
     strategies = []
@@ -245,7 +336,7 @@ def main() -> None:
 
     metrics = {
         "evaluation_version": EVALUATION_VERSION,
-        "pairs_file": str(args.pairs),
+        "pairs_file": str(pairs_path),
         "score_thresholds": {
             "strong": args.strong_threshold,
             "partial": args.partial_threshold,
@@ -274,8 +365,16 @@ def main() -> None:
                 },
             }
 
-            confusion_path = args.outdir / f"confusion_matrix_{strategy}.csv"
-            write_confusion_csv(result["confusion"], confusion_path, strategy)
+            if result["confusion_rows"]:
+                confusion_path = args.outdir / f"confusion_matrix_{strategy}.csv"
+                write_confusion_csv(
+                    compute_confusion(
+                        [item["expected_label"] for item in details if item["expected_label"]],
+                        [item["predicted_label"] for item in details if item["expected_label"]],
+                    ),
+                    confusion_path,
+                    strategy,
+                )
         except Exception as exc:
             metrics["models"][strategy] = {"error": str(exc)}
 
@@ -283,7 +382,59 @@ def main() -> None:
     with metrics_path.open("w", encoding="utf-8") as handle:
         json.dump(metrics, handle, indent=2)
 
+    if args.summary_out:
+        write_summary(
+            summary_path=args.summary_out,
+            metrics=metrics,
+            dataset_id=dataset_id,
+            strategies=strategies,
+        )
+
     print(f"Wrote metrics to {metrics_path}")
+
+
+def write_summary(
+    summary_path: Path,
+    metrics: dict[str, object],
+    dataset_id: str | None,
+    strategies: list[str],
+) -> None:
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    command = " ".join(sys.argv)
+    lines = [
+        "# External Evaluation Results",
+        "",
+        f"Run timestamp: {timestamp} (Local)",
+        "",
+        f"Command: `{command}`",
+        f"Dataset ID: {dataset_id or 'n/a'}",
+        "",
+        "## Summary",
+    ]
+    for strategy in strategies:
+        model = metrics.get("models", {}).get(strategy, {})
+        lines.append(f"### {strategy}")
+        if "error" in model:
+            lines.append(f"- error: {model['error']}")
+            lines.append("")
+            continue
+        classification = model.get("classification")
+        descriptive = model.get("descriptive")
+        lines.append(f"- pairs_file: {metrics.get('pairs_file')}")
+        if classification:
+            lines.append(f"- accuracy: {classification.get('accuracy')}")
+            lines.append(f"- macro_f1: {classification.get('macro_f1')}")
+        if descriptive:
+            lines.append(f"- descriptive_count: {descriptive.get('count')}")
+            lines.append(f"- score_min: {descriptive.get('min')}")
+            lines.append(f"- score_p50: {descriptive.get('p50')}")
+            lines.append(f"- score_p90: {descriptive.get('p90')}")
+            lines.append(f"- score_max: {descriptive.get('max')}")
+        if not classification:
+            lines.append("- limitation: labels not available; metrics are descriptive only.")
+        lines.append("")
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 if __name__ == "__main__":

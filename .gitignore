@@ -145,6 +145,16 @@ ENV/
 env.bak/
 venv.bak/
 
+# External data downloads
+data/raw/
+data/kaggle/
+data/external/kaggle/_incoming_zips/
+data/external/kaggle/_unzipped/
+data/processed/datasets/
+
+# Model artifacts
+models/
+
 # Spyder project settings
 .spyderproject
 .spyproject
