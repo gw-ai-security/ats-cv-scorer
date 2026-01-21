@@ -10,8 +10,12 @@
 - Requirements (FR/NFR) und Traceability angelegt
 - ADR-001 fuer Streamlit MVP festgelegt
 - Quality Gates und Evaluation Plan dokumentiert
+- Definition of Done, Change Control und Review/Abnahme dokumentiert
+- Requirement-Qualitaetsstandard, Traceability-Regeln und Scope-Guardrails definiert
 - Project Snapshots fuer Kontextweitergabe angelegt
 - Codex Skills fuer Requirements, Architektur, Kernmodule, Tests/CI und Snapshots dokumentiert
+- Knowledge Base (DE/EN) angelegt und verlinkt
+- Phase 0 formal signoff erstellt
 - Basisstruktur im Repo (frontend/src/tests/docs)
 - FR-002 Textextraktion (deterministisch) umgesetzt
 - FR-003 CV-Strukturanalyse umgesetzt
@@ -47,3 +51,5 @@
 ## Verweise
 - Phasenplan & Skill-Orchestrierung: `docs/codex_skills/PHASE_PLAN.md`
 - Skill-Uebersicht: `docs/codex_skills/OVERVIEW.md`
+- Knowledge Base: `docs/knowledge_base/`
+- Phase-1-Abschlussreport: `docs/codex_skills/PHASE_1_REPORT.md`

@@ -1,6 +1,6 @@
 ﻿# ATS CV Scorer - Phasenplan & Skill-Orchestrierung
 
-Statusgrundlage: Project Snapshot `docs/project_state/2026-01-21/121203_project_snapshot.md`.
+Statusgrundlage: Project Snapshot `docs/project_state/2026-01-21/122540_project_snapshot.md`.
 Hinweis: Status in diesem Plan reflektiert den Snapshot, nicht spaetere Aenderungen.
 
 ## 1) Gesamt-Phasenuebersicht
@@ -24,6 +24,7 @@ Projektowner, Tech Lead
 | Projektueberblick und Scope dokumentieren | Projektowner | erledigt | Dokument existiert | `docs/00_overview/PROJECT_OVERVIEW.md` |
 | Repo-Basisstruktur anlegen (docs/src/tests/frontend) | Tech Lead | erledigt | Struktur im Repo dokumentiert | `docs/00_overview/PROJECT_STATE.md` |
 | Privacy-by-Design Grundsaetze festhalten | Projektowner | erledigt | Privacy-Abschnitte dokumentiert | `README.md`, `docs/00_overview/PROJECT_OVERVIEW.md` |
+| Phase-0-Signoff erstellen | Projektowner | erledigt | Signoff-Datei vorhanden | `docs/codex_skills/PHASE_0_SIGNOFF.md` |
 ### Abschlusskriterien
 - Scope und Privacy sind dokumentiert.
 - Basisstruktur ist vorhanden.
@@ -40,6 +41,12 @@ Requirements Engineer, QA Lead
 | Traceability-Matrix pflegen | Requirements Engineer | erledigt | Matrix vorhanden | `docs/01_requirements/TRACEABILITY.en.md` |
 | Quality Gates definieren | QA Lead | erledigt | Quality Gates dokumentiert | `docs/03_quality/QUALITY_GATES.md` |
 | Evaluation Plan definieren | QA Lead | erledigt | Evaluation Plan dokumentiert | `docs/04_evaluation/EVALUATION_PLAN.md` |
+| Definition of Done dokumentieren | QA Lead | erledigt | Dokument vorhanden | `docs/03_quality/DEFINITION_OF_DONE.md` |
+| Change Control Regeln definieren | QA Lead | erledigt | Dokument vorhanden | `docs/03_quality/CHANGE_CONTROL.md` |
+| Review- und Abnahmeprozess definieren | QA Lead | erledigt | Dokument vorhanden | `docs/03_quality/REVIEW_ACCEPTANCE.md` |
+| Requirement-Qualitaetsstandard definieren | Requirements Engineer | erledigt | Dokument vorhanden | `docs/01_requirements/REQUIREMENTS_QUALITY.md` |
+| Traceability-Regeln definieren | Requirements Engineer | erledigt | Dokument vorhanden | `docs/01_requirements/TRACEABILITY_RULES.md` |
+| Scope- und Drift-Guardrails definieren | Projektowner | erledigt | Dokument vorhanden | `docs/01_requirements/SCOPE_GUARDRAILS.md` |
 ### Abschlusskriterien
 - FR/NFR und Traceability sind vorhanden.
 - Quality Gates und Evaluation Plan sind dokumentiert.

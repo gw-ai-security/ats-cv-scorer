@@ -17,6 +17,8 @@
 | project-state-snapshot | Project Snapshot erzeugen | Bei Status-Updates oder Kontextweitergabe | `.codex/skills/project-state-snapshot/SKILL.md` |
 | project-phase-planner | Phasenplan pflegen | Bei Aenderungen am Projektplan | `.codex/skills/project-phase-planner/SKILL.md` |
 | project-orchestration | Skill-Orchestrierung | Bei Phasenwechsel oder Laufplanung | `.codex/skills/project-orchestration/SKILL.md` |
+| knowledge-base | Knowledge Base pflegen (DE/EN) | Nach Snapshot oder Doku-Aenderungen | `.codex/skills/knowledge-base/SKILL.md` |
+| master-orchestration | Master-Orchestrierung | Vor Arbeitslaeufen/Phasenwechsel | `.codex/skills/master-orchestration/SKILL.md` |
 
 ## 2) Skill-Dateien (einzeln erstellt)
 Jede Skill-Datei folgt diesem Template:
@@ -61,3 +63,5 @@ Typische Situationen im Projektverlauf.
 12. project-state-snapshot
 13. project-phase-planner
 14. project-orchestration
+15. knowledge-base
+16. master-orchestration
