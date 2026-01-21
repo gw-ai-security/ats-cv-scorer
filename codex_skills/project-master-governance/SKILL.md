@@ -75,7 +75,7 @@ Always provide:
 - Explicit confirmation of requirement alignment
 
 ## Project Memory
-The file docs/00_overview/PROJECT_STATE.md is the authoritative source
+The file SS is the authoritative source
 for the current project state.
 
 Always check this file before making assumptions about progress,

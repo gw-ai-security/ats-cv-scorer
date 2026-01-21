@@ -1,15 +1,17 @@
-# Project State (2026-01-14)
+# Project State (2026-01-21)
 
 ## Status Summary
 - Phase: MVP (Case Study)
 - Gesamtstatus: stabil, Scope klar
-- Letztes Update: 2026-01-14
+- Letztes Update: 2026-01-21
 
 ## Erledigt
 - Projektueberblick und Scope dokumentiert
 - Requirements (FR/NFR) und Traceability angelegt
 - ADR-001 fuer Streamlit MVP festgelegt
 - Quality Gates und Evaluation Plan dokumentiert
+- Project Snapshots fuer Kontextweitergabe angelegt
+- Codex Skills fuer Requirements, Architektur, Kernmodule, Tests/CI und Snapshots dokumentiert
 - Basisstruktur im Repo (frontend/src/tests/docs)
 - FR-002 Textextraktion (deterministisch) umgesetzt
 - FR-003 CV-Strukturanalyse umgesetzt
@@ -41,3 +43,7 @@
 ## Offene Fragen
 - Welche Skill-Extraktion (Regeln vs. spaetere ML-Phase)?
 - Welche Bewertungsmetrik fuer Erklaerbarkeit?
+
+## Verweise
+- Phasenplan & Skill-Orchestrierung: `docs/codex_skills/PHASE_PLAN.md`
+- Skill-Uebersicht: `docs/codex_skills/OVERVIEW.md`

@@ -44,3 +44,5 @@ py -m venv .venv
 - `src/utils/` validation and helpers
 - `tests/` unit and integration tests
 - `docs/` requirements, architecture, quality, evaluation
+- `docs/codex_skills/PHASE_PLAN.md` phasenbasierter Projektplan
+- `docs/codex_skills/OVERVIEW.md` Skill-Uebersicht
