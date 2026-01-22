@@ -98,6 +98,8 @@ def write_report(results: list[dict[str, object]]) -> None:
         for key, value in result.items():
             lines.append(f"- {key}: {value}")
         lines.append("")
+    lines.append("## Related Reports")
+    lines.append("- Adapter health: `docs/04_evaluation/ADAPTER_HEALTH_REPORT.md`")
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
 
 

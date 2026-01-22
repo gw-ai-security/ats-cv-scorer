@@ -13,6 +13,8 @@ from src.core.matcher import BaselineMatcher, MatchResult, match_with_strategy
 from src.core.pdf_processor import PDFProcessor
 from src.core.pdf_layout import render_score_report_pdf
 from src.core.report_export import build_report_payload, render_report_markdown, json_dumps
+from src.prompt_chain.engine import run_prompt_chain
+from src.prompt_chain.models import PromptChainSettings
 from src.core.skill_extractor import SkillExtractor
 from src.utils.config import get_matching_strategy, is_evaluation_gate_open
 from src.utils.validation import validate_upload
@@ -195,8 +197,11 @@ def _build_optimized_cv_text(
 def _build_improvements(match: MatchResult, ats: ATSCriteria, jd: JDParseResult) -> list[str]:
     improvements: list[str] = []
     skill_gaps = match.breakdown["skills"].get("gaps", [])
+    unverified = match.breakdown["skills"].get("unverified_skills", [])
     if skill_gaps:
         improvements.append(f"Add missing JD skills: {', '.join(skill_gaps)}")
+    if unverified:
+        improvements.append(f"Add evidence in experience for: {', '.join(unverified)}")
 
     language_gaps = match.breakdown["language"].get("gaps", [])
     if language_gaps:
@@ -227,6 +232,19 @@ def _build_improvements(match: MatchResult, ats: ATSCriteria, jd: JDParseResult)
         improvements.append("No obvious improvements detected by current rules.")
 
     return improvements
+
+
+def _build_requirements_catalog(jd: JDParseResult) -> dict[str, list[str]]:
+    required = [item for item in jd.requirements if item]
+    responsibilities = [item for item in jd.responsibilities if item]
+    skills = [skill for skill in jd.skills if skill]
+    keywords = [kw for kw in jd.keywords if kw]
+    return {
+        "required_skills": skills,
+        "requirements": required,
+        "responsibilities": responsibilities,
+        "keywords": keywords,
+    }
 
 
 def _render_ml_explanation(match: MatchResult) -> None:
@@ -349,7 +367,18 @@ else:
             st.write("Upload or paste a JD to calculate the score.")
 
         with left:
-            tabs = st.tabs(["Text", "Structure", "Skills", "ATS Criteria", "Job Description", "Match", "Optimization"])
+            tabs = st.tabs(
+                [
+                    "Text",
+                    "Structure",
+                    "Skills",
+                    "ATS Criteria",
+                    "Job Description",
+                    "Match",
+                    "Optimization",
+                    "Prompt Chain",
+                ]
+            )
 
             with tabs[0]:
                 st.subheader("Text preview")
@@ -440,6 +469,17 @@ else:
                         st.metric("Match score", f"{match_result.score}%")
                     st.write(match_result.breakdown)
 
+                    catalog = _build_requirements_catalog(parsed_jd)
+                    st.subheader("Requirements catalog (JD)")
+                    st.write(
+                        {
+                            "required_skills": catalog["required_skills"],
+                            "requirements": catalog["requirements"],
+                            "responsibilities": catalog["responsibilities"],
+                            "keywords": catalog["keywords"],
+                        }
+                    )
+
                     try:
                         report_pdf = render_score_report_pdf(
                             match=match_result,
@@ -486,7 +526,7 @@ else:
                             st.subheader("Score explanation")
                             for item in _build_match_explanations(match_result, ats_result):
                                 st.write(f"- {item}")
-                            st.subheader("Improvements")
+                            st.subheader("What to improve (action list)")
                             for item in _build_improvements(match_result, ats_result, parsed_jd):
                                 st.write(f"- {item}")
 
@@ -515,6 +555,93 @@ else:
                         )
                     else:
                         st.info("PDF download requires reportlab to be installed.")
+
+            with tabs[7]:
+                st.subheader("Prompt Chain Workflow")
+                if parsed_jd is None:
+                    st.info("Provide a JD to run the prompt chain.")
+                else:
+                    ats_for_chain = ats_extractor.extract(result.text)
+                    chain_match = matcher.match(ats_for_chain, parsed_jd)
+                    use_llm = st.toggle("Use LLM (if configured)", value=False)
+                    language = st.selectbox("Language", ["auto", "en", "de"], index=0)
+                    if st.button("Run Chain"):
+                        chain_settings = PromptChainSettings(
+                            language="unknown" if language == "auto" else language,
+                            use_llm=use_llm,
+                            provider="openai" if use_llm else "fallback",
+                        )
+                        chain_result = run_prompt_chain(
+                            resume_text=result.text,
+                            jd_text=jd_text or "",
+                            settings=chain_settings,
+                            app_version="vNext",
+                        )
+                        st.success("Prompt chain complete.")
+                        step1 = chain_result.step_results["step1"]
+                        step2 = chain_result.step_results["step2"]
+                        step3 = chain_result.step_results["step3"]
+                        step4 = chain_result.step_results["step4"]
+                        st.subheader("Step 1: Recruiter Match")
+                        st.write(
+                            {
+                                "score_0_100": step1.get("score_0_100"),
+                                "missing_keywords": step1.get("missing_keywords"),
+                                "rationale": step1.get("rationale"),
+                            }
+                        )
+                        st.subheader("Step 2: Experience Rewrite (Templates)")
+                        st.write(
+                            {
+                                "templates": step2.get("templates"),
+                                "evidence_refs": step2.get("evidence_refs"),
+                                "warnings": step2.get("warnings"),
+                            }
+                        )
+                        st.subheader("Step 3: ATS Parse Check")
+                        st.write({"issues": step3.get("issues"), "fixes": step3.get("fixes")})
+                        st.subheader("Step 4: Interview Stress Test")
+                        st.write(step4.get("questions"))
+                        if chain_result.safety_flags.pii_detected_counts:
+                            st.warning(f"PII counts: {chain_result.safety_flags.pii_detected_counts}")
+
+                        report_payload = build_report_payload(
+                            match=chain_match,
+                            ats=ats_for_chain,
+                            jd=parsed_jd,
+                            strategy=matching_strategy,
+                            dataset_id="synthetic_fixture" if demo_mode else "upload",
+                            prompt_chain=chain_result.__dict__,
+                        )
+                        st.download_button(
+                            "Download chain report (JSON)",
+                            data=json_dumps(report_payload).encode("utf-8"),
+                            file_name="prompt_chain_report.json",
+                            mime="application/json",
+                        )
+                        st.download_button(
+                            "Download chain report (MD)",
+                            data=render_report_markdown(report_payload).encode("utf-8"),
+                            file_name="prompt_chain_report.md",
+                            mime="text/markdown",
+                        )
+                        try:
+                            pdf_bytes = render_score_report_pdf(
+                                match=chain_match,
+                                ats=ats_for_chain,
+                                jd=parsed_jd,
+                                strategy=matching_strategy,
+                                dataset_id="synthetic_fixture" if demo_mode else "upload",
+                                prompt_chain=chain_result.__dict__,
+                            )
+                            st.download_button(
+                                "Download chain report (PDF)",
+                                data=pdf_bytes,
+                                file_name="prompt_chain_report.pdf",
+                                mime="application/pdf",
+                            )
+                        except Exception:
+                            st.info("PDF report requires reportlab to be installed.")
         status_slot.success("Done.")
     finally:
         if temp_path and os.path.exists(temp_path):

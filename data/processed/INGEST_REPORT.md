@@ -62,3 +62,6 @@
 - license_label: unknown
 - usage_status: restricted
 - source_url: unknown
+
+## Related Reports
+- Adapter health: `docs/04_evaluation/ADAPTER_HEALTH_REPORT.md`

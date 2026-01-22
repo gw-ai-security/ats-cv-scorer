@@ -35,8 +35,19 @@ Dokumentation externer Datenquellen inkl. Lizenz- und Compliance-Bewertung vor N
 ### Registry Felder (Compliance)
 - `source_url`: Dataset-URL (unknown bis verifiziert).
 - `license_label`: explizite Lizenz (Default `unknown`).
+- `license_url`: Link zu Lizenz/Terms (optional; Default `unknown`).
 - `usage_status`: `restricted`, bis Lizenz + PII Status dokumentiert sind.
 - `dataset_type`: `paired|cv_only|jd_only|skills_only` fuer Verarbeitung.
+
+### Bedeutung von usage_status
+- `restricted`: Lizenz/PII nicht verifiziert; nur lokale Analyse mit klaren Limits.
+- `approved_local_only`: Lizenz verifiziert, aber nur lokale Nutzung; keine Weitergabe.
+- `approved`: Lizenz verifiziert und fuer Projekt freigegeben (keine Rohdaten im Repo).
+
+### Lizenzinfos aktualisieren
+1) `data/processed/registry_licenses_overrides.json` bearbeiten.
+2) `scripts/data/update_registry_licenses.py` ausfuehren.
+3) `data/processed/REGISTRY_CHANGELOG.md` pruefen.
 
 ## Aktuelle Bewertungen (initial)
 ### Kaggle Resume / Job Description Dataset (konkrete Quelle ausstehend)
@@ -113,4 +124,4 @@ Dokumentation externer Datenquellen inkl. Lizenz- und Compliance-Bewertung vor N
 - `docs/project_state/`
 
 ## Last Updated
-2026-01-21 16:32:30 (Local)
+2026-01-22 20:21:30 (Local)

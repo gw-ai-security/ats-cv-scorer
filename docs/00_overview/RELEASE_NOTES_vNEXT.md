@@ -7,6 +7,12 @@
 - Report exports: PDF + JSON + Markdown.
 - Streamlit demo mode with synthetic fixtures and export buttons.
 
+## vNext.1 Updates
+- License registry workflow with overrides + changelog.
+- Hybrid ML external evaluation skips gracefully when embeddings are unavailable.
+- Adapter validation fixtures/tests + adapter health report.
+- Prompt Chain workflow with offline fallback, optional LLM provider, and exports.
+
 ## Governance
 - External datasets default to `restricted` until license verification.
 - Evaluation gate remains enforced for hybrid ML.

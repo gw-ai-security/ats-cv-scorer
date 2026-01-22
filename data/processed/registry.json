@@ -19,7 +19,8 @@
       "source_url": "unknown",
       "license_label": "unknown",
       "usage_status": "restricted",
-      "dataset_type": "cv_only"
+      "dataset_type": "cv_only",
+      "license_url": "unknown"
     },
     {
       "dataset_id": "resume_job_matching",
@@ -39,7 +40,8 @@
       "source_url": "unknown",
       "license_label": "unknown",
       "usage_status": "restricted",
-      "dataset_type": "paired"
+      "dataset_type": "paired",
+      "license_url": "unknown"
     },
     {
       "dataset_id": "resume_data_ranking",
@@ -59,7 +61,8 @@
       "source_url": "unknown",
       "license_label": "unknown",
       "usage_status": "restricted",
-      "dataset_type": "paired"
+      "dataset_type": "paired",
+      "license_url": "unknown"
     },
     {
       "dataset_id": "job_descriptions_2025",
@@ -79,7 +82,8 @@
       "source_url": "unknown",
       "license_label": "unknown",
       "usage_status": "restricted",
-      "dataset_type": "jd_only"
+      "dataset_type": "jd_only",
+      "license_url": "unknown"
     },
     {
       "dataset_id": "job_skill_set",
@@ -97,7 +101,8 @@
       "source_url": "unknown",
       "license_label": "unknown",
       "usage_status": "restricted",
-      "dataset_type": "skills_only"
+      "dataset_type": "skills_only",
+      "license_url": "unknown"
     }
   ]
 }

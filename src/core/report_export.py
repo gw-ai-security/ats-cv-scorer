@@ -14,6 +14,7 @@ def build_report_payload(
     jd: JDParseResult,
     strategy: str,
     dataset_id: str | None = None,
+    prompt_chain: dict[str, object] | None = None,
 ) -> dict[str, object]:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     breakdown = match.breakdown
@@ -52,6 +53,7 @@ def build_report_payload(
             "missing_fields": ats.missing_fields,
             "keyword_stuffing_risk": penalties.get("keyword_stuffing_risk"),
         },
+        "prompt_chain": prompt_chain or {},
     }
 
 
@@ -100,6 +102,16 @@ def render_report_markdown(payload: dict[str, object]) -> str:
             f"- keyword_stuffing_risk: {payload.get('warnings', {}).get('keyword_stuffing_risk')}",
         ]
     )
+    chain = payload.get("prompt_chain") or {}
+    if chain:
+        lines.extend(
+            [
+                "",
+                "## Prompt Chain Results",
+                f"- strategy: {chain.get('strategy')}",
+                f"- run_id: {chain.get('chain_run_id')}",
+            ]
+        )
     return "\n".join(lines)
 
 

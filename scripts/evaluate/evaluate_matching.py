@@ -11,6 +11,7 @@ from typing import Iterable
 from src.core.ats_criteria_extractor import ATSCriteriaExtractor
 from src.core.jd_parser import JDParser
 from src.core.matcher import match_with_strategy
+from src.core.ml.embedding_runtime import get_default_embedding_status
 
 EVALUATION_VERSION = "1.0.0"
 LABELS = ["strong_match", "partial_match", "mismatch"]
@@ -333,6 +334,14 @@ def main() -> None:
         strategies = ["baseline", "hybrid_ml"]
     else:
         strategies = [args.strategy]
+    notes: list[str] = []
+    embedding_status = get_default_embedding_status()
+    if "hybrid_ml" in strategies and not embedding_status.available:
+        notes.append(f"hybrid_skipped: {embedding_status.message}")
+        if args.strategy == "hybrid_ml":
+            strategies = ["baseline"]
+        else:
+            strategies = [s for s in strategies if s != "hybrid_ml"]
 
     metrics = {
         "evaluation_version": EVALUATION_VERSION,
@@ -341,6 +350,7 @@ def main() -> None:
             "strong": args.strong_threshold,
             "partial": args.partial_threshold,
         },
+        "notes": notes,
         "models": {},
     }
 
@@ -388,6 +398,7 @@ def main() -> None:
             metrics=metrics,
             dataset_id=dataset_id,
             strategies=strategies,
+            notes=notes,
         )
 
     print(f"Wrote metrics to {metrics_path}")
@@ -398,6 +409,7 @@ def write_summary(
     metrics: dict[str, object],
     dataset_id: str | None,
     strategies: list[str],
+    notes: list[str],
 ) -> None:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     command = " ".join(sys.argv)
@@ -411,6 +423,11 @@ def write_summary(
         "",
         "## Summary",
     ]
+    if notes:
+        lines.append("## Environment Notes")
+        for note in notes:
+            lines.append(f"- {note}")
+        lines.append("")
     for strategy in strategies:
         model = metrics.get("models", {}).get(strategy, {})
         lines.append(f"### {strategy}")

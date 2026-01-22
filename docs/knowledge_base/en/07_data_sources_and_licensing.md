@@ -35,8 +35,19 @@ Document external data sources and perform a licensing/compliance review before 
 ### Registry Fields (Compliance)
 - `source_url`: dataset landing page (unknown until verified).
 - `license_label`: explicit license name (default `unknown`).
+- `license_url`: link to license or terms (optional; default `unknown`).
 - `usage_status`: `restricted` until license + PII status is documented.
 - `dataset_type`: `paired|cv_only|jd_only|skills_only` for downstream handling.
+
+### Usage Status Meaning
+- `restricted`: license/PII not verified; use only for local analysis with strict limits.
+- `approved_local_only`: verified license but use only locally; no redistribution.
+- `approved`: verified license and approved for project use (still no raw data committed).
+
+### How to Update License Info
+1) Edit `data/processed/registry_licenses_overrides.json`.
+2) Run `scripts/data/update_registry_licenses.py`.
+3) Review `data/processed/REGISTRY_CHANGELOG.md`.
 
 ## Current Assessments (initial)
 ### Kaggle Resume / Job Description Dataset (source pending)
@@ -113,4 +124,4 @@ Document external data sources and perform a licensing/compliance review before 
 - `docs/project_state/`
 
 ## Last Updated
-2026-01-21 16:32:30 (Local)
+2026-01-22 20:21:30 (Local)

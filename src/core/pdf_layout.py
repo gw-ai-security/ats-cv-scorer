@@ -50,6 +50,7 @@ def render_score_report_pdf(
     jd: JDParseResult,
     strategy: str,
     dataset_id: str | None = None,
+    prompt_chain: dict[str, object] | None = None,
 ) -> bytes:
     buffer = BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
@@ -60,7 +61,14 @@ def render_score_report_pdf(
     pdf.drawString(72, y, "ATS CV Scorer - Match Report")
     y -= 24
 
-    payload = build_report_payload(match=match, ats=ats, jd=jd, strategy=strategy, dataset_id=dataset_id)
+    payload = build_report_payload(
+        match=match,
+        ats=ats,
+        jd=jd,
+        strategy=strategy,
+        dataset_id=dataset_id,
+        prompt_chain=prompt_chain,
+    )
     breakdown = payload["score_breakdown"]
     component_lines = [
         f"skills: {breakdown.get('skills')}",
@@ -86,6 +94,16 @@ def render_score_report_pdf(
         f"keyword_stuffing_risk: {payload.get('warnings', {}).get('keyword_stuffing_risk')}",
     ]
 
+    chain = payload.get("prompt_chain") or {}
+    prompt_chain_lines = []
+    if chain:
+        prompt_chain_lines.append(f"Strategy: {chain.get('strategy')}")
+        prompt_chain_lines.append(f"Run ID: {chain.get('chain_run_id')}")
+        step1 = chain.get("step_results", {}).get("step1", {})
+        if step1:
+            prompt_chain_lines.append(
+                f"Step1 score: {step1.get('score_0_100')} missing: {', '.join(step1.get('missing_keywords', []))}"
+            )
     context = {
         "timestamp": payload["meta"]["timestamp"],
         "strategy": payload["meta"]["strategy"],
@@ -98,6 +116,7 @@ def render_score_report_pdf(
         "matched_lines": matched_lines or ["No matched skills recorded."],
         "missing_lines": missing_lines or ["No missing required skills flagged."],
         "warning_lines": warning_lines,
+        "prompt_chain_lines": prompt_chain_lines,
     }
     template_lines = _render_template_lines(context)
     if template_lines:

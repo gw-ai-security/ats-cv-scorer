@@ -14,7 +14,7 @@ Define the current, explainable scoring logic for the ATS CV Scorer and document
 - JD parse result from `src/core/jd_parser.py`
 
 ### Score Components and Weights
-Total score is a weighted sum, scaled to 0–100:
+Total score is a weighted sum, scaled to 0-100:
 ```
 total = (
   skills_score * 0.50 +
@@ -31,6 +31,7 @@ score = round(total * 100, 2)
   - CV skills: all skills from CV sections + certifications + languages.
   - JD skills: `jd.skills` + `jd.keywords` (keywords include tokens from responsibilities).
   - `skills_score = len(matched) / len(jd_skills)` (or 1.0 if no JD skills).
+  - Skills without evidence in experience/summary reduce score via `evidence_ratio`.
   - Output: `matched`, `gaps`, `score`.
 - **experience_score**
   - If no seniority requirement found: score = 1.0.
@@ -49,7 +50,9 @@ score = round(total * 100, 2)
 ### Penalties (Informational Only)
 - **missing_required_skills**: currently derived from `jd.skills + jd.keywords` minus CV skills.
 - **keyword_stuffing_risk**: true if skills are present but CV experience section is empty.
-- These penalties are surfaced for explainability only and do not change scores yet.
+- **unverified_skill_count**: matched skills without evidence in experience/summary.
+- **evidence_ratio**: fraction of matched skills with evidence.
+- These penalties are surfaced for explainability and some affect skill scoring via evidence ratio.
 
 ### Baseline Output Schema
 ```
@@ -64,7 +67,9 @@ score = round(total * 100, 2)
     "penalties": {
       "missing_required_skills": [...],
       "missing_required_count": int,
-      "keyword_stuffing_risk": bool
+      "keyword_stuffing_risk": bool,
+      "unverified_skill_count": int,
+      "evidence_ratio": float
     }
   }
 }
@@ -106,10 +111,13 @@ score = round(total * 100, 2)
     "section_coverage": float,
     "top_matched_skills": [...],
     "top_matched_chunks": [...],
+    "evidence_snippets": {...},
     "penalties": {
       "missing_required_skills": [...],
       "missing_required_count": int,
-      "keyword_stuffing_risk": bool
+      "keyword_stuffing_risk": bool,
+      "unverified_skill_count": int,
+      "evidence_ratio": float
     }
   }
 }
@@ -117,6 +125,8 @@ score = round(total * 100, 2)
 
 ### Calibration
 - Optional calibrator (`ML_CALIBRATOR_PATH`) can rescale final scores.
+- Feature vector includes semantic similarity, skill overlap, section coverage,
+  missing required count, keyword stuffing risk, and evidence ratio.
 - If not configured, raw fusion score is used.
 
 ## TODO (Not Implemented Yet)

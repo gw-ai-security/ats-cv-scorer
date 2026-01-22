@@ -1,0 +1,34 @@
+{
+  "datasets": {
+    "ats_scoring_dataset": {
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "license_url": "unknown",
+      "usage_status": "restricted"
+    },
+    "resume_job_matching": {
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "license_url": "unknown",
+      "usage_status": "restricted"
+    },
+    "resume_data_ranking": {
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "license_url": "unknown",
+      "usage_status": "restricted"
+    },
+    "job_descriptions_2025": {
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "license_url": "unknown",
+      "usage_status": "restricted"
+    },
+    "job_skill_set": {
+      "source_url": "unknown",
+      "license_label": "unknown",
+      "license_url": "unknown",
+      "usage_status": "restricted"
+    }
+  }
+}
